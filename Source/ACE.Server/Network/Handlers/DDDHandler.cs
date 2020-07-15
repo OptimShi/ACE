@@ -7,6 +7,7 @@ using ACE.Server.Network.GameEvent.Events;
 using ACE.Server.Network.GameMessages;
 using ACE.Server.Network.GameMessages.Messages;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ACE.Server.Network.Handlers
 {
@@ -58,29 +59,19 @@ namespace ACE.Server.Network.Handlers
         [GameMessage(GameMessageOpcode.DDD_RequestDataMessage, SessionState.WorldConnected)]
         public static void DDD_RequestDataMessage(ClientMessage message, Session session)
         {
-            if (!PropertyManager.GetBool("show_dat_warning").Item) return;
 
-            // True DAT patching would be triggered by this msg, but as we're not supporting that, respond instead with warning and push to external download
+            DatFileType qdid_type = (DatFileType)message.Payload.ReadInt32();
+            var qdid_ID = message.Payload.ReadUInt32();
 
-            var msg = PropertyManager.GetString("dat_warning_msg").Item;
-            var popupMsg = new GameEventPopupString(session, msg);
-            var chatMsg = new GameMessageSystemChat(msg, ChatMessageType.WorldBroadcast);
-            var transientMsg = new GameEventCommunicationTransientString(session, msg);
-
-            var resourceType = message.Payload.ReadUInt32();
-            var dataId = message.Payload.ReadUInt32();
-            var errorType = 1u; // unknown enum... this seems to trigger reattempt request by client.
-
-            var dddErrorMsg = new GameMessageDDDErrorMessage(resourceType, dataId, errorType);
-
-            if (session.Player.FirstEnterWorldDone) // Boot client with msg
+            // Landblock also needs to send the LandBlockInfo (0xFFFE) file with it...
+            if (qdid_type == DatFileType.LandBlock)
             {
-                session.Network.EnqueueSend(new GameMessageBootAccount($"\n{msg}"), dddErrorMsg);
-                session.LogOffPlayer(true);
+                GameMessageDDDDataMessage landblockInfoMessage = new GameMessageDDDDataMessage(qdid_ID, qdid_type);
+                session.Network.EnqueueSend(landblockInfoMessage);
             }
-            else // cannot cleanly boot player that hasn't completed first login, client crashes so msg wouldn't be seen, instead spam msgs until server auto boots them or they disconnect.
-                session.Network.EnqueueSend(popupMsg, chatMsg, transientMsg, dddErrorMsg);
 
+            GameMessageDDDDataMessage dataMessage = new GameMessageDDDDataMessage(qdid_ID, qdid_type);
+            session.Network.EnqueueSend(dataMessage);
         }
     }
 }
