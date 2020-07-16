@@ -45,12 +45,14 @@ namespace ACE.Server.Network.GameMessages.Messages
             Writer.Write((uint)FileType);
             Writer.Write(FileID);
 
-            Writer.Write(9999); // Iteration
-            Writer.Write(false); // Compressed - For the sake of simplicity, not going to bother with this.
+            Writer.Write(983); // Iteration
+            Writer.Write((byte)0); // Compressed = false - For the sake of simplicity, not going to bother with this.
 
             var filePath = UpdatePath + "\\" + datSubFolder + "\\" + FileID.ToString("X8") + ".bin";
             var fileContents = File.ReadAllBytes(filePath);
 
+            Writer.Write(3); // version
+            Writer.Write(fileContents.Length + 4); // length + size of this message
             Writer.Write(fileContents);
         }
     }

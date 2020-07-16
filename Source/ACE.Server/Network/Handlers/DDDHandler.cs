@@ -46,14 +46,20 @@ namespace ACE.Server.Network.Handlers
                 }
             }
 
-            GameMessageDDDEndDDD patchStatusMessage = new GameMessageDDDEndDDD();
-            session.Network.EnqueueSend(patchStatusMessage);
+            GameMessageDDDBeginDDD beginDDD = new GameMessageDDDBeginDDD();
+            session.Network.EnqueueSend(beginDDD);
+
+            // Dummy Data Message
+            //GameMessageDDDDataMessage lbiData = new GameMessageDDDDataMessage(0x55EDFFFE, DatFileType.LandBlock);
+            //GameMessageDDDDataMessage lbData = new GameMessageDDDDataMessage(0x55EDFFFF, DatFileType.LandBlock);
+            //session.Network.EnqueueSend(lbData);
         }
 
         [GameMessage(GameMessageOpcode.DDD_EndDDD, SessionState.AuthConnected)]
         public static void DDD_EndDDD(ClientMessage message, Session session)
         {
-            // We don't need to reply to this message.
+            GameMessageDDDEndDDD patchStatusMessage = new GameMessageDDDEndDDD();
+            session.Network.EnqueueSend(patchStatusMessage);
         }
 
         [GameMessage(GameMessageOpcode.DDD_RequestDataMessage, SessionState.WorldConnected)]
