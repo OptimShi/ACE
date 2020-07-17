@@ -14,6 +14,7 @@ namespace ACE.Server.Network.Handlers
     public static class DDDHandler
     {
         public static IEnumerable<object> ItersWIthKeys { get; private set; }
+        private static bool doPatching = false;
 
         [GameMessage(GameMessageOpcode.DDD_InterrogationResponse, SessionState.AuthConnected)]
         public static void DDD_InterrogationResponse(ClientMessage message, Session session)
@@ -46,20 +47,31 @@ namespace ACE.Server.Network.Handlers
                 }
             }
 
-            GameMessageDDDBeginDDD beginDDD = new GameMessageDDDBeginDDD();
-            session.Network.EnqueueSend(beginDDD);
+            if (doPatching)
+            {
+                GameMessageDDDBeginDDD beginDDD = new GameMessageDDDBeginDDD();
+                session.Network.EnqueueSend(beginDDD);
+            }
+            else
+            {
+                GameMessageDDDEndDDD patchStatusMessage = new GameMessageDDDEndDDD();
+                session.Network.EnqueueSend(patchStatusMessage);
+            }
 
             // Dummy Data Message
-            //GameMessageDDDDataMessage lbiData = new GameMessageDDDDataMessage(0x55EDFFFE, DatFileType.LandBlock);
+            GameMessageDDDDataMessage spellTableUpdate = new GameMessageDDDDataMessage(0x0E00000E, DatFileType.DbSpellTable, 2073);
             //GameMessageDDDDataMessage lbData = new GameMessageDDDDataMessage(0x55EDFFFF, DatFileType.LandBlock);
-            //session.Network.EnqueueSend(lbData);
+            session.Network.EnqueueSend(spellTableUpdate);
         }
 
         [GameMessage(GameMessageOpcode.DDD_EndDDD, SessionState.AuthConnected)]
         public static void DDD_EndDDD(ClientMessage message, Session session)
         {
-            GameMessageDDDEndDDD patchStatusMessage = new GameMessageDDDEndDDD();
-            session.Network.EnqueueSend(patchStatusMessage);
+            if (doPatching)
+            {
+                GameMessageDDDEndDDD patchStatusMessage = new GameMessageDDDEndDDD();
+                session.Network.EnqueueSend(patchStatusMessage);
+            }
         }
 
         [GameMessage(GameMessageOpcode.DDD_RequestDataMessage, SessionState.WorldConnected)]
@@ -72,11 +84,11 @@ namespace ACE.Server.Network.Handlers
             // Landblock also needs to send the LandBlockInfo (0xFFFE) file with it...
             if (qdid_type == DatFileType.LandBlock)
             {
-                GameMessageDDDDataMessage landblockInfoMessage = new GameMessageDDDDataMessage(qdid_ID, qdid_type);
+                GameMessageDDDDataMessage landblockInfoMessage = new GameMessageDDDDataMessage(qdid_ID, qdid_type, 983);
                 session.Network.EnqueueSend(landblockInfoMessage);
             }
 
-            GameMessageDDDDataMessage dataMessage = new GameMessageDDDDataMessage(qdid_ID, qdid_type);
+            GameMessageDDDDataMessage dataMessage = new GameMessageDDDDataMessage(qdid_ID, qdid_type, 983);
             session.Network.EnqueueSend(dataMessage);
         }
     }

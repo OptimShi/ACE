@@ -7,19 +7,36 @@ namespace ACE.Server.Network.GameMessages.Messages
         {
             var dataSize = 6 * 4 + 2570 * 4;
             dataSize = 0;
+
+            dataSize = 1479136; // Size of SpellTable
+            //dataSize = 2479136; // Hack size of SpellTable
             Writer.Write(dataSize); // Data Size
-            Writer.Write(1); // Number of MissingIterations
+            Writer.Write(3); // Number of MissingIterations
+
+            // Portal
+            Writer.Write(0);
+            Writer.Write(1);
+            Writer.Write(2073);
+            Writer.Write(1);
+            Writer.Write(0x0E00000E);// spell table
+            Writer.Write(0);
+
+            // Language
+            Writer.Write(1);
+            Writer.Write(3);
+            Writer.Write(983);
+            Writer.Write(0);
+            Writer.Write(0);
 
             // CELL!
             Writer.Write(1);
             Writer.Write(2);
-
             Writer.Write(983); // ITERATION
-
-            Writer.Write(1); // Ids to Download count
-            Writer.Write(0x55EDFFFF);
+            Writer.Write(0); // Ids to Download count
+            //Writer.Write(0x55EDFFFF);
 
             Writer.Write(2569); // Ids to Purge Count
+            //Writer.Write(13); // Ids to Purge Count
 
             Writer.Write(0x55EEFFFF);
             Writer.Write(0x55EFFFFF);
@@ -2591,13 +2608,6 @@ namespace ACE.Server.Network.GameMessages.Messages
             Writer.Write(0xFD79FFFF);
             Writer.Write(0xFD7AFFFF);
 
-            /*
-            Writer.Write(1);
-            Writer.Write(2);
-            Writer.Write(984); // ITERATION
-            Writer.Write(0); // Ids to Download count
-            Writer.Write(0); // Ids to Purge count
-            */
 
         }
     }

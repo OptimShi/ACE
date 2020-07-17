@@ -507,5 +507,9 @@ namespace ACE.DatLoader
         [DatDatabaseType(DatDatabaseType.Portal)]
         [DatFileTypeIdRange(0x0E00001D, 0x0E00001D)]
         ContractTable           = 111, // DB_TYPE_CONTRACT_TABLE_0
+
+        [DatDatabaseType(DatDatabaseType.Portal)]
+        [DatFileTypeIdRange(0x0E00001D, 0x0E00001D)]
+        DbSpellTable = 268435461, // DB_TYPE_SPELL_TABLE, 0x10000005
     }
 }

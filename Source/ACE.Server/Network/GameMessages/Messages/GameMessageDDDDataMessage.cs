@@ -13,7 +13,7 @@ namespace ACE.Server.Network.GameMessages.Messages
     public class GameMessageDDDDataMessage : GameMessage
     {
         private string UpdatePath = "D:\\Source\\ACE\\DatUpdates";
-        public GameMessageDDDDataMessage(uint FileID, DatFileType FileType)
+        public GameMessageDDDDataMessage(uint FileID, DatFileType FileType, uint Iteration)
             : base(GameMessageOpcode.DDD_DataMessage, GameMessageGroup.DatabaseQueue)
         {
             var enumType = typeof(DatFileType);
@@ -45,7 +45,7 @@ namespace ACE.Server.Network.GameMessages.Messages
             Writer.Write((uint)FileType);
             Writer.Write(FileID);
 
-            Writer.Write(983); // Iteration
+            Writer.Write(Iteration); // Iteration
             Writer.Write((byte)0); // Compressed = false - For the sake of simplicity, not going to bother with this.
 
             var filePath = UpdatePath + "\\" + datSubFolder + "\\" + FileID.ToString("X8") + ".bin";
