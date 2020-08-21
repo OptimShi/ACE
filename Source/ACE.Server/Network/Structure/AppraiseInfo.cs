@@ -417,7 +417,7 @@ namespace ACE.Server.Network.Structure
             if (wo.GemType > 0 && wo.GemCount > 0)
                 appraisalLongDescDecoration |= AppraisalLongDescDecorations.AppendGemInfo;
 
-            if (appraisalLongDescDecoration > 0)
+            if (appraisalLongDescDecoration > 0 && wo.LongDesc != null && wo.LongDesc.StartsWith(wo.Name))
                 PropertiesInt[PropertyInt.AppraisalLongDescDecoration] = (int)appraisalLongDescDecoration;
             else
                 PropertiesInt.Remove(PropertyInt.AppraisalLongDescDecoration);
@@ -563,12 +563,17 @@ namespace ACE.Server.Network.Structure
             ResistHighlight = ResistMaskHelper.GetHighlightMask(creature);
             ResistColor = ResistMaskHelper.GetColorMask(creature);
 
-            ArmorLevels = new ArmorLevel(creature);
+            if (creature is Player || !creature.Attackable)
+                ArmorLevels = new ArmorLevel(creature);
 
             AddRatings(creature);
 
             if (PropertiesInt.ContainsKey(PropertyInt.EncumbranceVal))
                 PropertiesInt.Remove(PropertyInt.EncumbranceVal);
+
+            // see notes in CombatPet.Init()
+            if (creature is CombatPet && PropertiesInt.ContainsKey(PropertyInt.Faction1Bits))
+                PropertiesInt.Remove(PropertyInt.Faction1Bits);
         }
 
         private void AddRatings(Creature creature)
