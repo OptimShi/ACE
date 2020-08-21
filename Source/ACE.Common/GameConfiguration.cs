@@ -35,5 +35,14 @@ namespace ACE.Common
         public bool LandblockPreloading { get; set; }
 
         public List<PreloadedLandblocks> PreloadedLandblocks { get; set; }
+
+        [System.ComponentModel.DefaultValue(false)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public bool EnableClientUpdates { get; set; }
+
+        [System.ComponentModel.DefaultValue("")]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Populate)]
+        public string UpdateConfigFile { get; set; }
+
     }
 }

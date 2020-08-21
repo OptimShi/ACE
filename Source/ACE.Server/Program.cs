@@ -149,6 +149,14 @@ namespace ACE.Server
             log.Info("Initializing ConfigManager...");
             ConfigManager.Initialize();
 
+            UpdateManager.Initialize();
+            if (UpdateManager.Enabled) { 
+                log.Info("Initializing UpdateManager...");
+                UpdateManager.Load();
+            }
+            else
+                log.Info("UpdateManager is disabled...");
+
             if (ConfigManager.Config.Offline.PurgeDeletedCharacters)
             {
                 log.Info($"Purging deleted characters, and their possessions, older than {ConfigManager.Config.Offline.PurgeDeletedCharactersDays} days ({DateTime.Now.AddDays(-ConfigManager.Config.Offline.PurgeDeletedCharactersDays)})...");
