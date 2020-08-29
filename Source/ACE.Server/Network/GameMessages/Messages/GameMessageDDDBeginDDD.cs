@@ -17,9 +17,87 @@ namespace ACE.Server.Network.GameMessages.Messages
             Writer.Write(0);
             Writer.Write(1);
             Writer.Write(2073);
-            Writer.Write(1);
-            Writer.Write(0x0E00000E);// spell table
-            Writer.Write(0);
+            Writer.Write(77); // Ids to Download Count
+
+            Writer.Write(0x010070C2);
+            Writer.Write(0x020029ED);
+            Writer.Write(0x0300184C);
+            Writer.Write(0x040040AE);
+            Writer.Write(0x040040B1);
+            Writer.Write(0x05005B41);
+            Writer.Write(0x05005B42);
+            Writer.Write(0x05005B43);
+            Writer.Write(0x05005B44);
+            Writer.Write(0x05005B45);
+            Writer.Write(0x06009B41);
+            Writer.Write(0x06009B42);
+            Writer.Write(0x06009B43);
+            Writer.Write(0x06009B44);
+            Writer.Write(0x06009B45);
+            Writer.Write(0x0800382A);
+            Writer.Write(0x0800382B);
+            Writer.Write(0x0800382C);
+            Writer.Write(0x0800382D);
+            Writer.Write(0x0800382E);
+            Writer.Write(0x0800382F);
+            Writer.Write(0x08003830);
+            Writer.Write(0x090010B0);
+            Writer.Write(0x0A001463);
+            Writer.Write(0x0F00119B);
+            Writer.Write(0x100012AE);
+            Writer.Write(0x2000016D);
+            Writer.Write(0x330020D3);
+            Writer.Write(0x330020D4);
+            Writer.Write(0x330020D5);
+            Writer.Write(0x330020D6);
+            Writer.Write(0x330020D7);
+            Writer.Write(0x330020D8);
+            Writer.Write(0x330020D9);
+            Writer.Write(0x330020DA);
+            Writer.Write(0x330020DB);
+            Writer.Write(0x330020DC);
+            Writer.Write(0x330020DD);
+            Writer.Write(0x330020DE);
+            Writer.Write(0x330020DF);
+            Writer.Write(0x330020E0);
+            Writer.Write(0x330020E1);
+            Writer.Write(0x330020E2);
+            Writer.Write(0x330020E3);
+            Writer.Write(0x330020E4);
+            Writer.Write(0x330020E5);
+            Writer.Write(0x330020E6);
+            Writer.Write(0x330020E7);
+            Writer.Write(0x330020E8);
+            Writer.Write(0x330020E9);
+            Writer.Write(0x330020EA);
+            Writer.Write(0x330020EB);
+            Writer.Write(0x330020EC);
+            Writer.Write(0x330020ED);
+            Writer.Write(0x330020EE);
+            Writer.Write(0x330020EF);
+            Writer.Write(0x330020F0);
+            Writer.Write(0x330020F1);
+            Writer.Write(0x330020F2);
+            Writer.Write(0x330020F3);
+            Writer.Write(0x330020F4);
+            Writer.Write(0x330020F5);
+            Writer.Write(0x330020F6);
+            Writer.Write(0x33002233);
+            Writer.Write(0x3300232F);
+            Writer.Write(0x33002331);
+            Writer.Write(0x33002332);
+            Writer.Write(0x33002719);
+            Writer.Write(0x33002867);
+            Writer.Write(0x33002868);
+            Writer.Write(0x33002869);
+            Writer.Write(0x3300286A);
+            Writer.Write(0x3300286B);
+            Writer.Write(0x3300286C);
+            Writer.Write(0x33002A84);
+            Writer.Write(0x33002A86);
+            Writer.Write(0x3400018A);
+
+            Writer.Write(0); // Ids to Purge Count
 
             // Language
             Writer.Write(1);
@@ -34,6 +112,10 @@ namespace ACE.Server.Network.GameMessages.Messages
             Writer.Write(983); // ITERATION
             Writer.Write(0); // Ids to Download count
             //Writer.Write(0x55EDFFFF);
+
+
+            Writer.Write(0); // Ids to Purge Count
+            return;
 
             Writer.Write(2569); // Ids to Purge Count
             //Writer.Write(13); // Ids to Purge Count
