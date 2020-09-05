@@ -24,6 +24,7 @@ using ACE.Server.WorldObjects;
 using ACE.Server.WorldObjects.Entity;
 
 using Position = ACE.Entity.Position;
+using ACE.DatLoader;
 
 namespace ACE.Server.Command.Handlers
 {
@@ -1227,6 +1228,48 @@ namespace ACE.Server.Command.Handlers
             LastSpawnPos = obj.Location;
 
             return obj;
+        }
+
+        [CommandHandler("create_pal", AccessLevel.Developer, CommandHandlerFlag.RequiresWorld, 1,
+    "Creates an object or objects in the world.",
+    "wclassid (string or number), Amount to Spawn (optional [default:1]), Palette (optional), Shade (optional)\n" +
+    "This will attempt to spawn the weenie you specify. If you include an amount to spawn parameter it will attempt to spawn that many of the weenie.\n" +
+    "Stackable items will spawn in stacks of their max stack size. All spawns will be limited by the physics engine placement algorithim which may prevent the number you specify from actually spawning." +
+    "Be careful with large numbers, especially with ethereal weenies...")]
+        public static void HandleCreateWithPaletteCycle(Session session, params string[] parameters)
+        {
+            string weenieClassDescription = parameters[0];
+            uint palette = 0;
+            bool hasPalette = false;
+            float shade = 0;
+            bool hasShade = false;
+            int numToSpawn = 1;
+            WorldObject weenieToSpawn;
+            List<WorldObject> weeniesToSpawn = new List<WorldObject>();
+
+            if (parameters.Length > 1)
+            {
+                if (!uint.TryParse(parameters[1], out palette))
+                {
+                    session.Network.EnqueueSend(new GameMessageSystemChat($"Amount to spawn must be a number between {0x04000000:X8} - {0x04FFFFFF:X8}.", ChatMessageType.Broadcast));
+                    return;
+                }
+            }
+
+            weenieToSpawn = CreateObjectForCommand(session, weenieClassDescription);
+            weenieToSpawn.PaletteBaseDID = palette;
+            weenieToSpawn.Name = palette.ToString("X8");
+            weeniesToSpawn.Add(weenieToSpawn);
+
+            foreach (var w in weeniesToSpawn)
+            {
+                w.EnterWorld();
+            }
+
+            if (numToSpawn > 1)
+                PlayerManager.BroadcastToAuditChannel(session.Player, $"{session.Player.Name} has created {numToSpawn} {weenieToSpawn.Name} (0x{weenieToSpawn.Guid:X8}) near {weenieToSpawn.Location.ToLOCString()}.");
+            else
+                PlayerManager.BroadcastToAuditChannel(session.Player, $"{session.Player.Name} has created {weenieToSpawn.Name} (0x{weenieToSpawn.Guid:X8}) at {weenieToSpawn.Location.ToLOCString()}.");
         }
 
         // create wclassid (number)
