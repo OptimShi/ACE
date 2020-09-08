@@ -1,0 +1,214 @@
+using ACE.Server.Network.GameMessages.Messages;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ACE.Server.Updates
+{
+    public static class UpdateList
+    {
+        public static List<uint> GetPortalPatchList()
+        {
+            List<uint> PortalPatches = new List<uint>();
+
+            // Goes in Updates.UpdateList.cs
+            PortalPatches.Add(0x0100508D);
+            PortalPatches.Add(0x0100508E);
+            PortalPatches.Add(0x0100508F);
+            PortalPatches.Add(0x01005090);
+            PortalPatches.Add(0x01005091);
+            PortalPatches.Add(0x01005092);
+            PortalPatches.Add(0x01005093);
+            PortalPatches.Add(0x01005094);
+            PortalPatches.Add(0x01005095);
+            PortalPatches.Add(0x01005096);
+            PortalPatches.Add(0x01005097);
+            PortalPatches.Add(0x01005098);
+            PortalPatches.Add(0x01005099);
+            PortalPatches.Add(0x0100509A);
+            PortalPatches.Add(0x0100509B);
+            PortalPatches.Add(0x0100509C);
+            PortalPatches.Add(0x0100509D);
+            PortalPatches.Add(0x010051EC);
+            PortalPatches.Add(0x01005B86);
+            PortalPatches.Add(0x01005B89);
+            PortalPatches.Add(0x01005B8A);
+            PortalPatches.Add(0x01005B8B);
+            PortalPatches.Add(0x01005B8C);
+            PortalPatches.Add(0x01005B8E);
+            PortalPatches.Add(0x01005B91);
+            PortalPatches.Add(0x01005B94);
+            PortalPatches.Add(0x01005B95);
+            PortalPatches.Add(0x01005B98);
+            PortalPatches.Add(0x01005BA5);
+            PortalPatches.Add(0x01005BA7);
+            PortalPatches.Add(0x01005F96);
+            PortalPatches.Add(0x01005FBF);
+            PortalPatches.Add(0x01006167);
+            PortalPatches.Add(0x01006464);
+            PortalPatches.Add(0x01006466);
+            PortalPatches.Add(0x01006468);
+            PortalPatches.Add(0x0100646A);
+            PortalPatches.Add(0x0100646C);
+            PortalPatches.Add(0x0100646E);
+            PortalPatches.Add(0x01006472);
+            PortalPatches.Add(0x01006474);
+            PortalPatches.Add(0x01006476);
+            PortalPatches.Add(0x0100647A);
+            PortalPatches.Add(0x0100647E);
+            PortalPatches.Add(0x01006482);
+            PortalPatches.Add(0x01006486);
+            PortalPatches.Add(0x0100648A);
+            PortalPatches.Add(0x0100648E);
+            PortalPatches.Add(0x01006491);
+            PortalPatches.Add(0x01006494);
+            PortalPatches.Add(0x01006BC3);
+            PortalPatches.Add(0x01006BE0);
+            PortalPatches.Add(0x01006F61);
+            PortalPatches.Add(0x02002002);
+            PortalPatches.Add(0x02002055);
+            PortalPatches.Add(0x0200240C);
+            PortalPatches.Add(0x0200249C);
+            PortalPatches.Add(0x02002980);
+            PortalPatches.Add(0x03001817);
+            PortalPatches.Add(0x040031C3);
+            PortalPatches.Add(0x040039AC);
+            PortalPatches.Add(0x04003B84);
+            PortalPatches.Add(0x04003B9C);
+            PortalPatches.Add(0x04003B9D);
+            PortalPatches.Add(0x04003B9E);
+            PortalPatches.Add(0x04003B9F);
+            PortalPatches.Add(0x04003BA0);
+            PortalPatches.Add(0x04003BA1);
+            PortalPatches.Add(0x04003BA2);
+            PortalPatches.Add(0x04003BA3);
+            PortalPatches.Add(0x04003BA4);
+            PortalPatches.Add(0x04003BA5);
+            PortalPatches.Add(0x04003BA6);
+            PortalPatches.Add(0x04003BA7);
+            PortalPatches.Add(0x04003C0B);
+            PortalPatches.Add(0x04003DE7);
+            PortalPatches.Add(0x04003F7C);
+            PortalPatches.Add(0x04003F8D);
+            PortalPatches.Add(0x04003F9A);
+            PortalPatches.Add(0x04003FC1);
+            PortalPatches.Add(0x05004075);
+            PortalPatches.Add(0x05004076);
+            PortalPatches.Add(0x05004077);
+            PortalPatches.Add(0x05004078);
+            PortalPatches.Add(0x05004079);
+            PortalPatches.Add(0x0500407B);
+            PortalPatches.Add(0x0500407E);
+            PortalPatches.Add(0x0500407F);
+            PortalPatches.Add(0x05004410);
+            PortalPatches.Add(0x05005269);
+            PortalPatches.Add(0x0500526A);
+            PortalPatches.Add(0x05005310);
+            PortalPatches.Add(0x0500542F);
+            PortalPatches.Add(0x05005430);
+            PortalPatches.Add(0x05005431);
+            PortalPatches.Add(0x05005432);
+            PortalPatches.Add(0x05005433);
+            PortalPatches.Add(0x050056D7);
+            PortalPatches.Add(0x0500590F);
+            PortalPatches.Add(0x0500591A);
+            PortalPatches.Add(0x0500591C);
+            PortalPatches.Add(0x05005927);
+            PortalPatches.Add(0x05005930);
+            PortalPatches.Add(0x050059C5);
+            PortalPatches.Add(0x050059C6);
+            PortalPatches.Add(0x06008075);
+            PortalPatches.Add(0x06008076);
+            PortalPatches.Add(0x06008077);
+            PortalPatches.Add(0x06008078);
+            PortalPatches.Add(0x06008079);
+            PortalPatches.Add(0x0600807B);
+            PortalPatches.Add(0x0600807E);
+            PortalPatches.Add(0x0600807F);
+            PortalPatches.Add(0x06008410);
+            PortalPatches.Add(0x06009269);
+            PortalPatches.Add(0x0600926A);
+            PortalPatches.Add(0x06009310);
+            PortalPatches.Add(0x0600942F);
+            PortalPatches.Add(0x06009430);
+            PortalPatches.Add(0x06009431);
+            PortalPatches.Add(0x06009432);
+            PortalPatches.Add(0x06009433);
+            PortalPatches.Add(0x060096D7);
+            PortalPatches.Add(0x0600990F);
+            PortalPatches.Add(0x0600991A);
+            PortalPatches.Add(0x0600991C);
+            PortalPatches.Add(0x06009927);
+            PortalPatches.Add(0x06009930);
+            PortalPatches.Add(0x060099C5);
+            PortalPatches.Add(0x060099C6);
+            PortalPatches.Add(0x0800208D);
+            PortalPatches.Add(0x0800208F);
+            PortalPatches.Add(0x08002090);
+            PortalPatches.Add(0x08002091);
+            PortalPatches.Add(0x08002092);
+            PortalPatches.Add(0x08002093);
+            PortalPatches.Add(0x08002094);
+            PortalPatches.Add(0x08002095);
+            PortalPatches.Add(0x08002096);
+            PortalPatches.Add(0x08002097);
+            PortalPatches.Add(0x080023A0);
+            PortalPatches.Add(0x08002CE9);
+            PortalPatches.Add(0x08002CEA);
+            PortalPatches.Add(0x08002E5F);
+            PortalPatches.Add(0x08002FF8);
+            PortalPatches.Add(0x08002FF9);
+            PortalPatches.Add(0x08002FFA);
+            PortalPatches.Add(0x08002FFB);
+            PortalPatches.Add(0x08002FFC);
+            PortalPatches.Add(0x0800327A);
+            PortalPatches.Add(0x080035AC);
+            PortalPatches.Add(0x080035AF);
+            PortalPatches.Add(0x080035B3);
+            PortalPatches.Add(0x080035D4);
+            PortalPatches.Add(0x080035E2);
+            PortalPatches.Add(0x080036AA);
+            PortalPatches.Add(0x080036AB);
+            PortalPatches.Add(0x08003C8F);
+            PortalPatches.Add(0x0A0013EF);
+            PortalPatches.Add(0x0A001446);
+            PortalPatches.Add(0x0F00103D);
+            PortalPatches.Add(0x0F001070);
+            PortalPatches.Add(0x0F001073);
+            PortalPatches.Add(0x0F001074);
+            PortalPatches.Add(0x0F001075);
+            PortalPatches.Add(0x0F001076);
+            PortalPatches.Add(0x0F001077);
+            PortalPatches.Add(0x0F001078);
+            PortalPatches.Add(0x0F001079);
+            PortalPatches.Add(0x0F00107A);
+            PortalPatches.Add(0x0F00107B);
+            PortalPatches.Add(0x0F00107C);
+            PortalPatches.Add(0x0F001113);
+            PortalPatches.Add(0x10001065);
+            PortalPatches.Add(0x100010C3);
+            PortalPatches.Add(0x32001537);
+            PortalPatches.Add(0x32001538);
+            PortalPatches.Add(0x32001539);
+            PortalPatches.Add(0x3200153B);
+            PortalPatches.Add(0x330029FE);
+            PortalPatches.Add(0x33002A3E);
+
+            return PortalPatches;
+        }
+
+        public static uint GetPatchSize()
+        {
+            uint size = 0;
+            var list = GetPortalPatchList();
+            string datSubFolder = "portal";
+            foreach (var file in list)
+            {
+                var filePath = GameMessageDDDDataMessage.UpdatePath + "\\" + datSubFolder + "\\" + file.ToString("X8") + ".bin";
+                var fileSize = new System.IO.FileInfo(filePath).Length;
+                size += (uint)fileSize;
+            }
+            return size;
+        }
+    }
+}

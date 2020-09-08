@@ -11,6 +11,8 @@ namespace ACE.DatLoader.Entity.AnimationHooks
             base.Unpack(reader);
 
             EmitterId = reader.ReadUInt32();
+
+            System.Console.WriteLine($"StopParticleHook EmitterID = {EmitterId:X8}");
         }
     }
 }

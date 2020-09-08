@@ -281,7 +281,10 @@ namespace ACE.Server.WorldObjects
                     return true;
                 }
 
-                foreach (var spell in item.Biota.GetKnownSpellsIds(BiotaDatabaseLock))
+                var spellsOnItem = item.Biota.GetKnownSpellsIds(BiotaDatabaseLock);
+                spellsOnItem.Reverse();
+
+                foreach (var spell in spellsOnItem)
                 {
                     if (item.HasProcSpell((uint)spell))
                         continue;

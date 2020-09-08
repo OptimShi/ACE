@@ -12,7 +12,7 @@ namespace ACE.Server.Network.GameMessages.Messages
 {
     public class GameMessageDDDDataMessage : GameMessage
     {
-        private string UpdatePath = "D:\\Source\\ACE\\DatUpdates";
+        public static string UpdatePath = "D:\\Source\\ACE\\DatUpdates";
         public GameMessageDDDDataMessage(uint FileID, DatFileType FileType, uint Iteration)
             : base(GameMessageOpcode.DDD_DataMessage, GameMessageGroup.DatabaseQueue)
         {

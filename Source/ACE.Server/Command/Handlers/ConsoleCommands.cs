@@ -10,6 +10,58 @@ namespace ACE.Server.Command.Handlers
 {
     public static class ConsoleCommands
     {
+        [CommandHandler("hooktypes", AccessLevel.Admin, CommandHandlerFlag.ConsoleInvoke, 0, "Show server version information.", "")]
+        public static void GetHookTypes(Session session, params string[] parameters)
+        {
+            Dictionary<AnimationHookType, uint> HookTypes = new Dictionary<AnimationHookType, uint>();
+
+            foreach(var e in DatManager.PortalDat.AllFiles)
+            {
+                if(e.Key > 0x03000000 && e.Key < 0x03FFFFFF)
+                {
+                    var anim = DatManager.PortalDat.ReadFromDat<Animation>(e.Key);
+                    foreach(var af in anim.PartFrames)
+                    {
+                        foreach(var hook in af.Hooks)
+                        {
+                            var type = hook.HookType;
+                            if (HookTypes.ContainsKey(type))
+                            {
+                                HookTypes[type]++;
+                            }
+                            else
+                            {
+                                HookTypes.Add(type, 1);
+                                Console.WriteLine($"{e.Key:X8} has HookType {type}");
+                            }
+                        }
+                    }
+                }
+                else if (e.Key > 0x33000000 && e.Key < 0x33FFFFFF)
+                {
+                    var phys = DatManager.PortalDat.ReadFromDat<PhysicsScript>(e.Key);
+                    foreach (var sd in phys.ScriptData)
+                    {
+                        var type = sd.Hook.HookType;
+                        if (HookTypes.ContainsKey(type))
+                        {
+                            HookTypes[type]++;
+                        }
+                        else
+                        {
+                            HookTypes.Add(type, 1);
+                            Console.WriteLine($"{e.Key:X8} has HookType {type}");
+                        }
+                    }
+                }
+            }
+
+            foreach(var ht in HookTypes)
+            {
+                Console.WriteLine($"{ht.Key} -- {ht.Value}");
+            }
+        }
+
         [CommandHandler("version", AccessLevel.Admin, CommandHandlerFlag.ConsoleInvoke, 0, "Show server version information.", "")]
         public static void ShowVersion(Session session, params string[] parameters)
         {

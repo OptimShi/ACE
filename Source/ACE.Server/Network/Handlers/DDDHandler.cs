@@ -15,7 +15,7 @@ namespace ACE.Server.Network.Handlers
     public static class DDDHandler
     {
         public static IEnumerable<object> ItersWIthKeys { get; private set; }
-        private static bool doPatching = true;
+        private static bool doPatching = false;
 
         [GameMessage(GameMessageOpcode.DDD_InterrogationResponse, SessionState.AuthConnected)]
         public static void DDD_InterrogationResponse(ClientMessage message, Session session)
@@ -53,8 +53,7 @@ namespace ACE.Server.Network.Handlers
                 GameMessageDDDBeginDDD beginDDD = new GameMessageDDDBeginDDD();
                 session.Network.EnqueueSend(beginDDD);
 
-                var PortalPatches = Update_DDDHandler.GetPortalPatchList();
-
+                var PortalPatches = UpdateList.GetPortalPatchList();
                 for (var i =0; i < PortalPatches.Count; i++)
                 {
                     var fileType = DatManager.GetFileType(DatDatabaseType.Portal, PortalPatches[i]);

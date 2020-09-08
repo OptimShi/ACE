@@ -7,8 +7,7 @@ namespace ACE.Server.Network.GameMessages.Messages
         public GameMessageDDDBeginDDD()
             : base(GameMessageOpcode.DDD_BeginDDD, GameMessageGroup.DatabaseQueue)
         {
-            var dataSize = 140259233;
-            Writer.Write(dataSize); // Total Size of Patches to Download
+            Writer.Write(UpdateList.GetPatchSize()); // Total Size of Patches to Download
             Writer.Write(3); // Number of MissingIterations
 
             // Portal
@@ -16,7 +15,12 @@ namespace ACE.Server.Network.GameMessages.Messages
             Writer.Write(1);
             Writer.Write(2073);
             //Writer.Write(77); // Ids to Download Count
-            Update_GameMessageDDDBeginDDD.SendUpdatedFiles(Writer);
+            var portalUpdates = UpdateList.GetPortalPatchList();
+            Writer.Write(portalUpdates.Count);
+            for(var i =0; i < portalUpdates.Count; i++)
+            {
+                Writer.Write(portalUpdates[i]);
+            }
             Writer.Write(0); // Ids to Purge Count
 
             // Language
