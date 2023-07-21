@@ -133,13 +133,12 @@ namespace ACE.DatLoader.Tests
                 Assert.IsNotNull(fileType, $"Key: 0x{kvp.Key:X8}, ObjectID: 0x{kvp.Value.ObjectId:X8}, FileSize: {kvp.Value.FileSize}");
 
                 // These file types aren't converted yet
-                if (fileType == DatFileType.KeyMap) continue;
-                if (fileType == DatFileType.RenderMaterial) continue;
-                if (fileType == DatFileType.MaterialModifier) continue;
-                if (fileType == DatFileType.MaterialInstance) continue;
-                if (fileType == DatFileType.ActionMap) continue;
-                if (fileType == DatFileType.DbProperties) continue;
-
+                if (fileType == DatFileType.KeyMap) continue; // 0x14, 2 files
+                if (fileType == DatFileType.RenderMaterial) continue; // 0x16, 1 file
+                if (fileType == DatFileType.MaterialModifier) continue; // 0x17, 1 file
+                if (fileType == DatFileType.MaterialInstance) continue; // 0x18, 1 file
+                if (fileType == DatFileType.ActionMap) continue; // 0x26, 1 file
+                
                 var type = types
                     .SelectMany(m => m.GetCustomAttributes(typeof(DatFileTypeAttribute), false), (m, a) => new { m, a })
                     .Where(t => ((DatFileTypeAttribute)t.a).FileType == fileType)
@@ -190,9 +189,6 @@ namespace ACE.DatLoader.Tests
 
                 //Assert.IsNotNull(fileType, $"Key: 0x{kvp.Key:X8}, ObjectID: 0x{kvp.Value.ObjectId:X8}, FileSize: {kvp.Value.FileSize}, BitFlags:, 0x{kvp.Value.BitFlags:X8}");
                 Assert.IsNotNull(fileType, $"Key: 0x{kvp.Key:X8}, ObjectID: 0x{kvp.Value.ObjectId:X8}, FileSize: {kvp.Value.FileSize}");
-
-                // These file types aren't converted yet
-                if (fileType == DatFileType.UiLayout) continue;
 
                 var type = types
                     .SelectMany(m => m.GetCustomAttributes(typeof(DatFileTypeAttribute), false), (m, a) => new { m, a })

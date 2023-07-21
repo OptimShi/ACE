@@ -777,7 +777,7 @@ namespace ACE.Server.WorldObjects
 
         public void HandleActionChangeCombatMode_Inner(CombatMode newCombatMode, bool forceHandCombat = false, Action callback = null)
         {
-            //log.Info($"{Name}.HandleActionChangeCombatMode_Inner({newCombatMode})");
+            log.Info($"{Name}.HandleActionChangeCombatMode_Inner({newCombatMode})");
 
             var currentCombatStance = GetCombatStance();
 
@@ -819,6 +819,7 @@ namespace ACE.Server.WorldObjects
 
                 case CombatMode.Missile:
                     {
+                        return;
                         if (missileWeapon == null)
                             return;
 
