@@ -9,7 +9,9 @@ namespace ACE.DatLoader.Entity
     public class ElementDesc : StateDesc
     {
         public uint UiReadOrder;
-        public uint ElementId;
+
+        // Enum names for these are in EnumMapper 0x2200001B (UIElementID)
+        public uint ElementId; 
         public uint Type;
         public uint BaseElement;
         public uint BaseLayout;

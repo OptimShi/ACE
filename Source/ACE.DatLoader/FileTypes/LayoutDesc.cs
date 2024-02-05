@@ -2,6 +2,7 @@ using ACE.DatLoader.Entity;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 
 namespace ACE.DatLoader.FileTypes

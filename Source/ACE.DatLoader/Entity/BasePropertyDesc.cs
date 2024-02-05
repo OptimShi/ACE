@@ -32,11 +32,11 @@ namespace ACE.DatLoader.Entity
         public uint defaultValueEnum;
         public uint defaultValueDataFile;
 
-        public float m_fPredictionTimeout;
-        public PropertyInheritanceType m_inheritanceType;
-        public PropertyDatFileType m_datFileType;
-        public PropertyPropagationType m_propagationType;
-        public PropertyCachingType m_cachingType;
+        float m_fPredictionTimeout;
+        PropertyInheritanceType m_inheritanceType;
+        PropertyDatFileType m_datFileType;
+        PropertyPropagationType m_propagationType;
+        PropertyCachingType m_cachingType;
 
         public bool m_bRequired;
         public bool m_bReadOnly;
@@ -93,7 +93,6 @@ namespace ACE.DatLoader.Entity
                     default:
                         // Should never hit this!
                         throw new NotImplementedException();
-                        break;
                 }
             }
             hasMax = reader.ReadBoolean();
@@ -125,10 +124,6 @@ namespace ACE.DatLoader.Entity
 
             /* Confident Var Names */
             m_fPredictionTimeout = reader.ReadSingle(); // const float Const_DefaultPredictedExpirationTime =  1.5; // idb
-            if(m_fPredictionTimeout != 1.5)
-            {
-                var test = false;
-            }
             m_inheritanceType = (PropertyInheritanceType)reader.ReadByte();
             m_datFileType = (PropertyDatFileType)reader.ReadByte();
             m_propagationType = (PropertyPropagationType)reader.ReadByte();

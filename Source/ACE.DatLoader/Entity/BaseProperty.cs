@@ -36,13 +36,10 @@ namespace ACE.DatLoader.Entity
         {
             Id = reader.ReadUInt32();
 
-            // We need to load the MasterProperty 0x39000001 to lookup what type the property Id is
-            var masterProperty = DatManager.PortalDat.ReadFromDat<MasterProperty>(MasterProperty.FILE_ID);
-
-            if (!masterProperty.m_properties.ContainsKey(Id))
+            if (!DatManager.PortalDat.MasterProperty.m_properties.ContainsKey(Id))
                 throw (new Exception("Unable to locate BaseProperty type in the MasterProperty table"));
 
-            PropertyType = masterProperty.m_properties[Id].m_propertyType;
+            PropertyType = DatManager.PortalDat.MasterProperty.m_properties[Id].m_propertyType;
             switch(PropertyType)
             {
                 case BasePropertyType.Enum:
