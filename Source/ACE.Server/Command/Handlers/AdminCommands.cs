@@ -4755,5 +4755,81 @@ namespace ACE.Server.Command.Handlers
             }
             LootSwap.UpdateTables(folder);
         }
+
+        [CommandHandler("duplicate", AccessLevel.Admin, CommandHandlerFlag.None, "Duplicates the last identified item.", "Item must be in admin inventory.")]
+        public static void HandleDuplicateItem(Session session, params string[] parameters)
+        {
+            var objectId = ObjectGuid.Invalid;
+
+            if (session.Player.HealthQueryTarget.HasValue)
+                objectId = new ObjectGuid(session.Player.HealthQueryTarget.Value);
+            else if (session.Player.ManaQueryTarget.HasValue)
+                objectId = new ObjectGuid(session.Player.ManaQueryTarget.Value);
+            else if (session.Player.CurrentAppraisalTarget.HasValue)
+                objectId = new ObjectGuid(session.Player.CurrentAppraisalTarget.Value);
+
+            if (objectId == ObjectGuid.Invalid)
+                ChatPacket.SendServerMessage(session, "Duplication failed. Please identify the object you wish to duplicate first.", ChatMessageType.Broadcast);
+
+            var srcObj = session.Player.FindObject(objectId.Full, Player.SearchLocations.MyInventory, out _, out Container rootOwner, out bool wasEquipped);
+
+            if(srcObj == null || session.Player.Guid != rootOwner.Guid)
+            {
+                ChatPacket.SendServerMessage(session, "Duplication failed. Object must be in your possession.", ChatMessageType.Broadcast);
+                return;
+            }
+
+            // Make sure the item is in the admin's inventory. Prevents silly things like duplicating housing or players or monsters, etc.
+            if (session.Player.Guid != rootOwner.Guid)
+            {
+                ChatPacket.SendServerMessage(session, "Duplication failed. Object must be in your possession.", ChatMessageType.Broadcast);
+                return;
+            }
+
+            // TODO -- Make sure there is an available pack slot
+
+            string weenieDesc = srcObj.WeenieClassId.ToString();
+            var baseWeenie = GetWeenieForCreate(session, weenieDesc, true);
+
+            var dupeObj = CreateObjectForCommand(session, baseWeenie);
+
+            if(srcObj.Biota.PropertiesBool != null)
+                foreach (var prop in srcObj.Biota.PropertiesBool)
+                    dupeObj.SetProperty(prop.Key, prop.Value);
+            if (srcObj.Biota.PropertiesDID != null)
+                foreach (var prop in srcObj.Biota.PropertiesDID)
+                    dupeObj.SetProperty(prop.Key, prop.Value);
+            if (srcObj.Biota.PropertiesFloat != null)
+                foreach (var prop in srcObj.Biota.PropertiesFloat)
+                    dupeObj.SetProperty(prop.Key, prop.Value);
+            if (srcObj.Biota.PropertiesIID != null)
+                foreach (var prop in srcObj.Biota.PropertiesIID)
+                    dupeObj.SetProperty(prop.Key, prop.Value);
+            if (srcObj.Biota.PropertiesInt != null)
+                foreach (var prop in srcObj.Biota.PropertiesInt)
+                    dupeObj.SetProperty(prop.Key, prop.Value);
+            if (srcObj.Biota.PropertiesInt64 != null)
+                foreach (var prop in srcObj.Biota.PropertiesInt64)
+                    dupeObj.SetProperty(prop.Key, prop.Value);
+            if (srcObj.Biota.PropertiesString != null)
+                foreach (var prop in srcObj.Biota.PropertiesString)
+                    dupeObj.SetProperty(prop.Key, prop.Value);
+            if (srcObj.Biota.PropertiesSpellBook != null)
+                foreach (var prop in srcObj.Biota.PropertiesSpellBook)
+                    dupeObj.Biota.GetOrAddKnownSpell((int)prop.Key, dupeObj.BiotaDatabaseLock, out var spellAdded);
+            if (srcObj.Biota.PropertiesBook != null)
+                foreach (var prop in srcObj.Biota.PropertiesSpellBook)
+                    dupeObj.Biota.GetOrAddKnownSpell((int)prop.Key, dupeObj.BiotaDatabaseLock, out var spellAdded);
+
+            // TODO - Book Data
+
+            session.Player.TryCreateInInventoryWithNetworking(dupeObj);
+
+            PlayerManager.BroadcastToAuditChannel(session.Player, $"{session.Player.Name} has duplciated {srcObj.Name} (0x{srcObj.Guid:X8}) in their inventory.");
+
+            ChatPacket.SendServerMessage(session, $"{srcObj.Name} was duplicated.", ChatMessageType.Broadcast);
+            return;
+        }
+
     }
 }
