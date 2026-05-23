@@ -40,7 +40,7 @@ namespace ACE.Server.WorldObjects
 
             targetDir.Z = 0.0f;
             targetDir = Vector3.Normalize(targetDir);
-            
+
             // get the 2D angle between these vectors
             return GetAngle(currentDir, targetDir);
         }
@@ -336,24 +336,37 @@ namespace ACE.Server.WorldObjects
         }
 
         /// <summary>
-        /// Sends a network message for moving a creature to a new position
+        /// Sends a network message for moving a creature to a new position.
         /// </summary>
-        public void MoveTo(Position position, float runRate = 1.0f, bool setLoc = true, float? walkRunThreshold = null, float? speed = null)
+        /// <returns>
+        /// The estimated time in seconds for the creature to reach the position,
+        /// including any initial turn time required to face the correct heading.
+        /// </returns>
+        public float MoveTo(Position position, float runRate = 1.0f, bool setLoc = true, float? walkRunThreshold = null, float? speed = null, bool getETA = false)
         {
             // build and send MoveToPosition message to client
             var motion = GetMoveToPosition(position, runRate, walkRunThreshold, speed);
             EnqueueBroadcastMotion(motion);
 
-            if (!setLoc) return;
+            if (setLoc)
+            {
+                // start executing MoveTo iterator on server
+                if (!PhysicsObj.IsMovingOrAnimating)
+                    PhysicsObj.UpdateTime = Physics.Common.PhysicsTimer.CurrentTime;
 
-            // start executing MoveTo iterator on server
-            if (!PhysicsObj.IsMovingOrAnimating)
-                PhysicsObj.UpdateTime = Physics.Common.PhysicsTimer.CurrentTime;
+                var mvp = new MovementParameters(motion.MoveToParameters);
+                PhysicsObj.MoveToPosition(new Physics.Common.Position(position), mvp);
 
-            var mvp = new MovementParameters(motion.MoveToParameters);
-            PhysicsObj.MoveToPosition(new Physics.Common.Position(position), mvp);
+                AddMoveToTick();
+            }
 
-            AddMoveToTick();
+            // Skip the calculation if we're not going to use it
+            if (!getETA) return 0;
+
+            // Estimate total travel time: heading rotation + linear travel.
+            var rotateDelay = GetRotateDelay(position);
+            var moveDelay = runRate > 0.0f ? Location.DistanceTo(position) / runRate : 0.0f;
+            return rotateDelay + moveDelay;
         }
 
         private void AddMoveToTick()

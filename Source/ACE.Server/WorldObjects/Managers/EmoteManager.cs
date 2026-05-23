@@ -986,25 +986,15 @@ namespace ACE.Server.WorldObjects.Managers
                         if (!WorldObject.PlayersInRange(ClientMaxAnimRange))
                             break;
 
-                        var newPos = new Position(creature.Home);
-                        newPos.Pos += new Vector3(emote.OriginX ?? 0, emote.OriginY ?? 0, emote.OriginZ ?? 0);      // uses relative position
-
-                        // ensure valid quaternion - all 0s for example can lock up physics engine
-                        if (emote.AnglesX != null && emote.AnglesY != null && emote.AnglesZ != null && emote.AnglesW != null &&
-                           (emote.AnglesX != 0    || emote.AnglesY != 0    || emote.AnglesZ != 0    || emote.AnglesW != 0) )
+                        // Pcaps indicate [0 0 0] movement did not actually do any movement. MoveHome would be the proper EmoteType to get the creature to return to initial position.
+                        Vector3 emotePos = new Vector3(emote.OriginX ?? 0, emote.OriginY ?? 0, emote.OriginZ ?? 0);
+                        if (emotePos.X > 0 || emotePos.Y > 0 || emotePos.Z > 0)
                         {
-                            // also relative, or absolute?
-                            newPos.Rotation *= new Quaternion(emote.AnglesX.Value, emote.AnglesY.Value, emote.AnglesZ.Value, emote.AnglesW.Value);  
+                            Position newPos = new Position(creature.Home);
+                            newPos.Pos = newPos.Pos + Vector3.Transform(emotePos, newPos.Rotation);
+                            newPos.Rotation = new Quaternion(emote.AnglesX ?? 0, emote.AnglesY ?? 0, emote.AnglesZ ?? 0, emote.AnglesW ?? 1);
+                            creature.MoveTo(newPos, creature.GetRunRate(), true, null, emote.Extent);
                         }
-
-                        if (Debug)
-                            Console.WriteLine(newPos.ToLOCString());
-
-                        // get new cell
-                        newPos.LandblockId = new LandblockId(PositionExtensions.GetCell(newPos));
-
-                        // TODO: handle delay for this?
-                        creature.MoveTo(newPos, creature.GetRunRate(), true, null, emote.Extent);
                     }
                     break;
 
@@ -1035,6 +1025,7 @@ namespace ACE.Server.WorldObjects.Managers
                                 Console.Write($" - {creature.Home.ToLOCString()}");
 
                             // how to get delay with this, callback required?
+                            //delay = creature.MoveTo(creature.Home, creature.GetRunRate(), true, null, emote.Extent, true);
                             creature.MoveTo(creature.Home, creature.GetRunRate(), true, null, emote.Extent);
                         }
                     }

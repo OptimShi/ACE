@@ -374,5 +374,59 @@ namespace ACE.Server.Entity
 
             return success;
         }
+
+        /// <summary>
+        /// TODO - REMOVE THESE BEFORE SUBMISSION
+        /// </summary>
+        /// <param name="basePosition"></param>
+        /// <param name="baseRotation"></param>
+        /// <param name="targetPosition"></param>
+        /// <param name="targetRotation"></param>
+        /// <returns></returns>
+        public static (Vector3 position, Quaternion rotation) ReverseTransform(
+            Vector3 basePosition, Quaternion baseRotation,
+            Vector3 targetPosition, Quaternion targetRotation)
+        {
+            // Un-rotate the world-space difference back into local space
+            Vector3 offsetPosition = Vector3.Transform(
+                targetPosition - basePosition,
+                Quaternion.Inverse(baseRotation)
+            );
+
+            // Reverse the rotation composition: base * offset = target → offset = Inverse(base) * target
+            Quaternion offsetRotation = Quaternion.Inverse(baseRotation) * targetRotation;
+
+            return (offsetPosition, offsetRotation);
+        }
+
+        public static (Vector3 position, Quaternion rotation) ApplyTransform(
+            Vector3 basePosition, Quaternion baseRotation,
+            Vector3 offsetPosition, Quaternion offsetRotation)
+        {
+            // Rotate the offset position by the base rotation, then add to base position
+            Vector3 newPosition = basePosition + Vector3.Transform(offsetPosition, baseRotation);
+
+            // Combine rotations: base * offset
+            Quaternion newRotation = baseRotation * offsetRotation;
+
+            return (newPosition, newRotation);
+        }
+
+        public static void VerifyRoundTrip(Vector3 basePos, Quaternion baseRot,
+                                    Vector3 offsetPos, Quaternion offsetRot)
+        {
+            // Forward
+            var (targetPos, targetRot) = ApplyTransform(basePos, baseRot, offsetPos, offsetRot);
+
+            // Reverse
+            var (recoveredPos, recoveredRot) = ReverseTransform(basePos, baseRot, targetPos, targetRot);
+
+            float posDiff = Vector3.Distance(offsetPos, recoveredPos);
+            float rotDiff = Quaternion.Dot(offsetRot, recoveredRot);  // should be ~1.0 or ~-1.0
+
+            Console.WriteLine($"Position error: {posDiff:F6}");        // → ~0.000000
+            Console.WriteLine($"Rotation dot:   {rotDiff:F6}");        // → ~1.000000
+        }
+
     }
 }
