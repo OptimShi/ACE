@@ -995,12 +995,11 @@ namespace ACE.Server.WorldObjects.Managers
 
                         // Pcaps indicate [0 0 0] movement did not actually do any movement. MoveHome would be the proper EmoteType to get the creature to return to initial position.
                         Vector3 emotePos = new Vector3(emote.OriginX ?? 0, emote.OriginY ?? 0, emote.OriginZ ?? 0);
-                        if (emotePos.X > 0 || emotePos.Y > 0 || emotePos.Z > 0)
+                        if (emotePos.X != 0 || emotePos.Y != 0 || emotePos.Z != 0)
                         {
 
-                            var newPos = new Position(creature.Home);
-                            //newPos.Pos += new Vector3(emote.OriginX ?? 0, emote.OriginY ?? 0, emote.OriginZ ?? 0);      // uses relative position
-                            newPos.Pos = newPos.Pos + Vector3.Transform(emotePos, newPos.Rotation);
+                            Position newPos = new Position(creature.Home);
+                            newPos.Pos += Vector3.Transform(emotePos, newPos.Rotation);
                             newPos.Rotation = new Quaternion(emote.AnglesX ?? 0, emote.AnglesY ?? 0, emote.AnglesZ ?? 0, emote.AnglesW ?? 1);
 
                             if (Debug || 1 == 1)
