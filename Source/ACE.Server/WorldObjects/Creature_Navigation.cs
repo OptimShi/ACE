@@ -17,6 +17,12 @@ namespace ACE.Server.WorldObjects
     partial class Creature
     {
         /// <summary>
+        /// Optional one-shot callback set by the emote system when an EmoteType.Move / MoveHome / MoveToPos
+        /// is in progress.  Fired from OnMoveComplete (in Monster_Navigation.cs) and cleared automatically.
+        /// </summary>
+        public Action<WeenieError> MoveToEmoteCallback { get; set; }
+
+        /// <summary>
         /// Returns the 3D distance between this creature and target
         /// </summary>
         public float GetDistance(WorldObject target)
@@ -336,37 +342,24 @@ namespace ACE.Server.WorldObjects
         }
 
         /// <summary>
-        /// Sends a network message for moving a creature to a new position.
+        /// Sends a network message for moving a creature to a new position
         /// </summary>
-        /// <returns>
-        /// The estimated time in seconds for the creature to reach the position,
-        /// including any initial turn time required to face the correct heading.
-        /// </returns>
-        public float MoveTo(Position position, float runRate = 1.0f, bool setLoc = true, float? walkRunThreshold = null, float? speed = null, bool getETA = false)
+        public void MoveTo(Position position, float runRate = 1.0f, bool setLoc = true, float? walkRunThreshold = null, float? speed = null)
         {
             // build and send MoveToPosition message to client
             var motion = GetMoveToPosition(position, runRate, walkRunThreshold, speed);
             EnqueueBroadcastMotion(motion);
 
-            if (setLoc)
-            {
-                // start executing MoveTo iterator on server
-                if (!PhysicsObj.IsMovingOrAnimating)
-                    PhysicsObj.UpdateTime = Physics.Common.PhysicsTimer.CurrentTime;
+            if (!setLoc) return;
 
-                var mvp = new MovementParameters(motion.MoveToParameters);
-                PhysicsObj.MoveToPosition(new Physics.Common.Position(position), mvp);
+            // start executing MoveTo iterator on server
+            if (!PhysicsObj.IsMovingOrAnimating)
+                PhysicsObj.UpdateTime = Physics.Common.PhysicsTimer.CurrentTime;
 
-                AddMoveToTick();
-            }
+            var mvp = new MovementParameters(motion.MoveToParameters);
+            PhysicsObj.MoveToPosition(new Physics.Common.Position(position), mvp);
 
-            // Skip the calculation if we're not going to use it
-            if (!getETA) return 0;
-
-            // Estimate total travel time: heading rotation + linear travel.
-            var rotateDelay = GetRotateDelay(position);
-            var moveDelay = runRate > 0.0f ? Location.DistanceTo(position) / runRate : 0.0f;
-            return rotateDelay + moveDelay;
+            AddMoveToTick();
         }
 
         private void AddMoveToTick()

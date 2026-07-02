@@ -140,6 +140,15 @@ namespace ACE.Server.WorldObjects
             if (DebugMove)
                 Console.WriteLine($"{Name} ({Guid}) - OnMoveComplete({status})");
 
+            // Fire the emote chain callback before the early-return below so the chain
+            // always resumes regardless of success or failure.
+            var emoteCb = MoveToEmoteCallback;
+            if (emoteCb != null)
+            {
+                MoveToEmoteCallback = null; // clear before invoking so re-entrant moves are safe
+                emoteCb(status);
+            }
+
             if (status != WeenieError.None)
                 return;
 
@@ -239,7 +248,7 @@ namespace ACE.Server.WorldObjects
         public void Movement()
         {
             //if (!IsRanged)
-                UpdatePosition();
+            UpdatePosition();
 
             if (MonsterState == State.Awake && GetDistanceToTarget() >= MaxChaseRange)
             {
@@ -302,7 +311,7 @@ namespace ACE.Server.WorldObjects
                     //Console.WriteLine("New position: " + newPos.Frame.Origin);
                 }
                 //else
-                    //Console.WriteLine("Moving " + Name + " to " + Location.LandblockId.Raw.ToString("X8"));
+                //Console.WriteLine("Moving " + Name + " to " + Location.LandblockId.Raw.ToString("X8"));
             }
 
             // skip ObjCellID check when updating from physics

@@ -44,6 +44,13 @@ namespace ACE.Server.WorldObjects.Managers
 
         public bool Debug = false;
 
+        /// <summary>
+        /// Sentinel value returned by ExecuteEmote when the emote has taken ownership of
+        /// chain advancement (e.g. EmoteType.Move waiting for MoveToManager completion).
+        /// DoEnqueue checks for this and skips automatic scheduling of the next emote.
+        /// </summary>
+        public const float EmoteChainSuspended = float.MaxValue;
+
         public EmoteManager(WorldObject worldObject)
         {
             _worldObject = worldObject;
@@ -55,8 +62,8 @@ namespace ACE.Server.WorldObjects.Managers
         /// <param name="emoteSet">The parent set of this emote</param>
         /// <param name="emote">The emote to execute</param>
         /// <param name="targetObject">A target object, usually player</param>
-        /// <param name="actionChain">Only used for passing to further sets</param>
-        public float ExecuteEmote(PropertiesEmote emoteSet, PropertiesEmoteAction emote, WorldObject targetObject = null)
+        /// <param name="emoteIdx">Index of this emote within the set; used by move emotes to resume the chain</param>
+        public float ExecuteEmote(PropertiesEmote emoteSet, PropertiesEmoteAction emote, WorldObject targetObject = null, int emoteIdx = 0)
         {
             var player = targetObject as Player;
             var creature = WorldObject as Creature;
@@ -580,7 +587,7 @@ namespace ACE.Server.WorldObjects.Managers
                 case EmoteType.InqOwnsItems:
 
                     if (player != null)
-					{
+                    {
                         var numRequired = emote.StackSize ?? 1;
 
                         var items = player.GetInventoryItemsOfWCID(emote.WeenieClassId ?? 0);
@@ -881,7 +888,7 @@ namespace ACE.Server.WorldObjects.Managers
                     var debugMotion = false;
 
                     if (Debug)
-                        Console.Write($".{(MotionCommand)emote.Motion}");
+                        Console.Write($"EmoteType.Motion - .{(MotionCommand)emote.Motion}");
 
                     // If the landblock is dormant, there are no players in range
                     if (WorldObject.CurrentLandblock?.IsDormant ?? false)
@@ -990,17 +997,28 @@ namespace ACE.Server.WorldObjects.Managers
                         Vector3 emotePos = new Vector3(emote.OriginX ?? 0, emote.OriginY ?? 0, emote.OriginZ ?? 0);
                         if (emotePos.X > 0 || emotePos.Y > 0 || emotePos.Z > 0)
                         {
-                            Position newPos = new Position(creature.Home);
+
+                            var newPos = new Position(creature.Home);
+                            //newPos.Pos += new Vector3(emote.OriginX ?? 0, emote.OriginY ?? 0, emote.OriginZ ?? 0);      // uses relative position
                             newPos.Pos = newPos.Pos + Vector3.Transform(emotePos, newPos.Rotation);
                             newPos.Rotation = new Quaternion(emote.AnglesX ?? 0, emote.AnglesY ?? 0, emote.AnglesZ ?? 0, emote.AnglesW ?? 1);
+
+                            if (Debug || 1 == 1)
+                                Console.WriteLine("EmoteType.Move - " + newPos.ToLOCString());
+
+                            // get new cell
+                            newPos.LandblockId = new LandblockId(PositionExtensions.GetCell(newPos));
+
+                            // Suspend the emote chain until MoveToManager signals completion.
+                            SuspendEmoteChainForMove(emoteSet, targetObject, emoteIdx);
                             creature.MoveTo(newPos, creature.GetRunRate(), true, null, emote.Extent);
+                            return EmoteChainSuspended;
                         }
                     }
                     break;
 
                 case EmoteType.MoveHome:
 
-                    // TODO: call MoveToManager on server, handle delay for this?
                     if (creature != null && creature.Home != null)
                     {
                         // are we already at home origin?
@@ -1024,9 +1042,10 @@ namespace ACE.Server.WorldObjects.Managers
                             if (Debug)
                                 Console.Write($" - {creature.Home.ToLOCString()}");
 
-                            // how to get delay with this, callback required?
-                            //delay = creature.MoveTo(creature.Home, creature.GetRunRate(), true, null, emote.Extent, true);
+                            // Suspend the emote chain until MoveToManager signals completion.
+                            SuspendEmoteChainForMove(emoteSet, targetObject, emoteIdx);
                             creature.MoveTo(creature.Home, creature.GetRunRate(), true, null, emote.Extent);
+                            return EmoteChainSuspended;
                         }
                     }
                     break;
@@ -1052,8 +1071,10 @@ namespace ACE.Server.WorldObjects.Managers
 
                         newPos.LandblockId = new LandblockId(PositionExtensions.GetCell(newPos));
 
-                        // TODO: handle delay for this?
+                        // Suspend the emote chain until MoveToManager signals completion.
+                        SuspendEmoteChainForMove(emoteSet, targetObject, emoteIdx);
                         creature.MoveTo(newPos, creature.GetRunRate(), true, null, emote.Extent);
+                        return EmoteChainSuspended;
                     }
                     break;
 
@@ -1651,10 +1672,16 @@ namespace ACE.Server.WorldObjects.Managers
             //    return;
             //}
 
-            var nextDelay = ExecuteEmote(emoteSet, emote, targetObject);
+            var nextDelay = ExecuteEmote(emoteSet, emote, targetObject, emoteIdx);
 
             if (Debug)
-                Console.WriteLine($" - { nextDelay}");
+                Console.WriteLine($" - {nextDelay}");
+
+            // EmoteChainSuspended means a move emote has taken ownership of chain advancement.
+            // SuspendEmoteChainForMove has already registered a MoveToEmoteCallback that will
+            // call Enqueue for the next emote when movement completes, so we stop here.
+            if (nextDelay >= EmoteChainSuspended)
+                return;
 
             if (emoteIdx < emoteSet.PropertiesEmoteAction.Count - 1)
                 Enqueue(emoteSet, targetObject, emoteIdx + 1, nextDelay);
@@ -1681,6 +1708,42 @@ namespace ACE.Server.WorldObjects.Managers
                         IsBusy = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Registers a one-shot MoveToEmoteCallback on the creature that, when fired by
+        /// MoveToManager on completion (success or failure), resumes the emote chain at
+        /// the emote immediately following the move emote.
+        /// </summary>
+        private void SuspendEmoteChainForMove(PropertiesEmote emoteSet, WorldObject targetObject, int emoteIdx)
+        {
+            var creature = WorldObject as Creature;
+            if (creature == null)
+                return;
+
+            creature.MoveToEmoteCallback = (status) =>
+            {
+                if (Debug || 1 == 1)
+                    Console.WriteLine($"{WorldObject.Name}.EmoteManager - MoveToComplete({status}), resuming chain at idx {emoteIdx + 1}");
+
+                // Always resume the chain regardless of success/failure so the emote set
+                // doesn't deadlock.  Individual emotes after the move can check state if needed.
+                var nextIdx = emoteIdx + 1;
+
+                if (nextIdx < emoteSet.PropertiesEmoteAction.Count)
+                {
+                    // Use emote.Delay of 0 here; the next emote's own Delay will be applied by Enqueue.
+                    Enqueue(emoteSet, targetObject, nextIdx, 0.0f);
+                }
+                else
+                {
+                    // Move was the last emote in the set; close out the chain.
+                    Nested--;
+
+                    if (Nested == 0)
+                        IsBusy = false;
+                }
+            };
         }
 
         private bool EmoteIsBranchingType(PropertiesEmoteAction emote)
@@ -1822,7 +1885,7 @@ namespace ACE.Server.WorldObjects.Managers
             if (target is Player targetPlayer)
             {
                 result = result.Replace("%tqt", !string.IsNullOrWhiteSpace(quest) ? targetPlayer.QuestManager.GetNextSolveTime(questName).GetFriendlyString() : "");
-                
+
                 result = result.Replace("%CDtime", !string.IsNullOrWhiteSpace(quest) ? targetPlayer.QuestManager.GetNextSolveTime(questName).GetFriendlyString() : "");
 
                 result = result.Replace("%tf", $"{(targetPlayer.Fellowship != null ? targetPlayer.Fellowship.FellowshipName : "")}");
@@ -1990,7 +2053,7 @@ namespace ACE.Server.WorldObjects.Managers
         {
             if (GetEmoteSet(EmoteCategory.Death) == null)
                 return;
-            
+
             IsBusy = false;
 
             var lastDamager = lastDamagerInfo?.TryGetPetOwnerOrAttacker();
